@@ -209,3 +209,12 @@ __marimo__/
 # Kaggle API token protection
 kaggle/kaggle.json
 *.json
+
+# Data files protection
+data/*.csv
+data/*.zip
+data/*.json
+data/*/
+
+# System files
+.DS_Store
