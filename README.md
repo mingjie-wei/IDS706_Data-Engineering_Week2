@@ -71,9 +71,9 @@ IDS706_Data-Engineering_Week2/
 ├─ README.md                       # Project doc (commit)
 ├─ requirements.txt                # Runtime dependencies (commit)
 ├─ data/                           # Local-only
-│  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv                                # Raw data
+│  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv
 ├─ kaggle/                         # Local-only
-│  └─ kaggle.json                  # Kaggle API token (IGNORE)
+│  └─ kaggle.json
 ├─ notebooks/                      # Notebooks for exploration (commit; strip outputs recommended)
 │  └─ ecommerce_behavior_analysis.ipynb
 └─ scripts/                        # Exported, runnable .py (commit)
