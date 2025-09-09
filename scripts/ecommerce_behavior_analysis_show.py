@@ -91,6 +91,7 @@ sns.histplot(df['Customer_Satisfaction'], bins=30, kde=True)
 plt.title('Distribution of Customer_Satisfaction')
 plt.xlabel('Customer_Satisfaction')
 plt.ylabel('Frequency')
+plt.savefig("../scripts/images/ecommerce_customer_satisfaction_distribution.png")
 plt.show()
 
 
@@ -278,6 +279,7 @@ plt.ylabel('True Positive Rate')
 plt.title('ROC Curve - XGBoost')
 plt.legend(loc='lower right')
 plt.grid(True)
+plt.savefig("../scripts/images/ecommerce_xgboost_roc_curve.png")
 plt.show()
 
 
@@ -294,4 +296,5 @@ plt.barh(feature_importance['feature'].head(15),
 plt.title('Top 15 Feature Importance - XGBoost')
 plt.xlabel('Importance Score')
 plt.tight_layout()
+plt.savefig("../scripts/images/ecommerce_xgboost_feature_importance.png")
 plt.show()
