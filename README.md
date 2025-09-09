@@ -3,23 +3,25 @@
 ## Project Overview
 This project delivers an end-to-end analytics workflow on e-commerce consumer behavior, covering data ingestion, cleaning, exploratory analysis, RFM-based customer segmentation, feature engineering, and binary classification using Logistic Regression and XGBoost. Visualizations (distribution plots, ROC curves, feature importance) are used to explain results and actionable insights.
 
-### Pipeline at a Glance
+**Data Source:** [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data)
 
-#### 1. Environment & Dependency Check
+## Data Analysis Steps
+
+### 1. Environment & Dependency Check
 Verify Python and core DS stack (pandas / matplotlib / seaborn / scikit-learn / xgboost).
 
-#### 2. Data Loading
+### 2. Data Loading
 Read from data/Ecommerce_Consumer_Behavior_Analysis_Data.csv; inspect schema and sample.
 
-#### 3. Data Cleaning
+### 3. Data Cleaning
 - Missing values: scan counts and percentages; fill categorical gaps (e.g., Engagement_with_Ads, Social_Media_Influence) with 'None'.
 
 - Type fixes: strip '$' and cast Purchase_Amount to float; parse Time_of_Purchase as datetime.
 
-#### 4. Exploratory Analysis
+### 4. Exploratory Analysis
 Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Satisfaction) and other univariate/bivariate checks.
 
-#### 5. RFM Customer Segmentation
+### 5. RFM Customer Segmentation
 - Compute Recency, Frequency, Monetary and 5-quantile R/F/M scores.
 
 - Define churn label is_churn = (Recency > 180).
@@ -28,21 +30,21 @@ Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Sat
 
 - Merge segments back to the main table.
 
-#### 6. Feature Engineering
+### 6. Feature Engineering
 One-hot encode categorical features (with drop_first=True), standardize numerical features, and assemble the training matrix.
 
-#### 7. Modeling & Evaluation
+### 7. Modeling & Evaluation
 - Logistic Regression as a baseline; accuracy and classification report.
 
 - XGBoost with core hyperparameters; report Accuracy and AUC; plot ROC and feature importance.
 
-#### 8. Visualization
+### 8. Visualization
 Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
 
-### Model Conclusions & Important Variables
+## Model Conclusions & Important Variables
 Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
 
-#### 1. Logistic Regression：
+### 1. Logistic Regression：
 - Accuracy: ~0.905 on the test set.
 
 - Most impactful variables:
@@ -52,7 +54,7 @@ Based on the current notebook runs (train/test split ≈ 800/200, post-encoding 
 
 - Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
 
-#### 2. XGBoost：
+### 2. XGBoost：
 - Accuracy: ~0.890
 
 - AUC: ~0.976
@@ -70,7 +72,7 @@ IDS706_Data-Engineering_Week2/
 ├─ Makefile                        # Handy install/test/clean targets (commit)
 ├─ README.md                       # Project doc (commit)
 ├─ requirements.txt                # Runtime dependencies (commit)
-├─ data/                           # Local-only
+├─ data/                           # Dataset (commit)
 │  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv
 ├─ kaggle/                         # Local-only
 │  └─ kaggle.json
@@ -200,7 +202,6 @@ kaggle/kaggle.json
 *.json
 
 # Data files protection
-data/*.csv
 data/*.zip
 data/*.json
 data/*/
@@ -257,10 +258,16 @@ cat > requirements.txt <<'EOF'
 pandas
 matplotlib
 seaborn
+plotly
 scikit-learn
+xgboost
+imbalanced-learn
 jupyter
 ipykernel
-kaggle
+kaggle>=1.6
+shap>=0.48.0
+numba>=0.61.0
+numpy<2.3
 EOF
 ```
 
