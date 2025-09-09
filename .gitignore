@@ -211,7 +211,6 @@ kaggle/kaggle.json
 *.json
 
 # Data files protection
-data/*.csv
 data/*.zip
 data/*.json
 data/*/
