@@ -76,10 +76,14 @@ IDS706_Data-Engineering_Week2/
 │  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv
 ├─ kaggle/                         # Local-only
 │  └─ kaggle.json
-├─ notebooks/                      # Notebooks for exploration (commit; strip outputs recommended)
+├─ notebooks/                      # Notebooks for exploration (commit)
 │  └─ ecommerce_behavior_analysis.ipynb
 └─ scripts/                        # Exported, runnable .py (commit)
-   └─ ecommerce_behavior_analysis_show.py
+│  ├─ images/                      # Generated visualizations and images
+│  │  ├─ ecommerce_customer_satisfaction_distribution.png
+│  │  ├─ ecommerce_xgboost_feature_importance.png
+│  │  └─ ecommerce_xgboost_roc_curve.png
+│  └─ ecommerce_behavior_analysis_show.py
 ```
 
 ## Development Container Setup
