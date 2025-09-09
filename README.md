@@ -3,6 +3,8 @@
 ## Project Overview
 This project delivers an end-to-end analytics workflow on e-commerce consumer behavior, covering data ingestion, cleaning, exploratory analysis, RFM-based customer segmentation, feature engineering, and binary classification using Logistic Regression and XGBoost. Visualizations (distribution plots, ROC curves, feature importance) are used to explain results and actionable insights.
 
+**Project Goal:** Predict the likelihood of customer churn, where churn is defined as having no purchase activity within the past 180 days.
+
 **Data Source:** [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data)
 
 ## Data Analysis Steps
