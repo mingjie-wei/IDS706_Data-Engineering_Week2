@@ -42,22 +42,22 @@ Distribution plots, ROC curves, and feature-importance bar charts for interpreta
 ### Model Conclusions & Important Variables
 Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
 
-- Logistic Regression：
-    - Accuracy: ~0.905 on the test set.
+#### 1. Logistic Regression：
+- Accuracy: ~0.905 on the test set.
 
-    - Most impactful variables:
-        - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
+- Most impactful variables:
+    - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
 
-        - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
+    - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
 
-    - Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
+- Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
 
-- XGBoost：
-    - Accuracy: ~0.890
+#### 2. XGBoost：
+- Accuracy: ~0.890
 
-    - AUC: ~0.976
+- AUC: ~0.976
 
-    - Classification report shows balanced precision/recall across classes.
+- Classification report shows balanced precision/recall across classes.
 
 ## Project Structure
 ```bash
@@ -70,10 +70,9 @@ IDS706_Data-Engineering_Week2/
 ├─ Makefile                        # Handy install/test/clean targets (commit)
 ├─ README.md                       # Project doc (commit)
 ├─ requirements.txt                # Runtime dependencies (commit)
-├─ data/                           # Raw/derived data (ignore contents)
-│  └─ .gitkeep                     # Keep folder structure in Git (commit)
-├─ kaggle/                         # Local-only secrets (ignore contents)
-│  ├─ .gitkeep                     # Keep folder structure in Git (commit)
+├─ data/                           # Local-only
+│  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv                                # Raw data
+├─ kaggle/                         # Local-only
 │  └─ kaggle.json                  # Kaggle API token (IGNORE)
 ├─ notebooks/                      # Notebooks for exploration (commit; strip outputs recommended)
 │  └─ ecommerce_behavior_analysis.ipynb
