@@ -44,7 +44,7 @@ def filter_data(df, filter_dict):
     return result
 
 
-def group_data(df, *, group_col, agg_col, agg="mean"):
+def group_data(df, group_col, agg_col, agg="mean"):
     # Group data and perform aggregation calculations
     missing = [c for c in (group_col, agg_col) if c not in df.columns]
 
