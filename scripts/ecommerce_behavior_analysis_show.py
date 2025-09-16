@@ -3,6 +3,7 @@
 # ======= Environment Verification =======
 
 # Testing Kernel and Environment
+import os
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score, roc_curve
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
@@ -30,8 +31,42 @@ except ImportError as e:
 
 # ======= Data Loading =======
 
-file_path = '../data/Ecommerce_Consumer_Behavior_Analysis_Data.csv'
-df = pd.read_csv(file_path)
+def get_data_path():
+
+    data_file_name = 'Ecommerce_Consumer_Behavior_Analysis_Data.csv'
+
+    if os.getenv('RUN_ENVIRONMENT') == 'docker':
+        return f'/app/data/{data_file_name}'
+    else:
+        # Default to local path for development
+        return f'../data/{data_file_name}'
+
+
+def save_plot(plot, filename):
+
+    if os.getenv("IS_DOCKER_CONTAINER") == "true":
+        output_dir = "/app/scripts/images"
+    else:
+        output_dir = "scripts/images"
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    full_path = os.path.join(output_dir, filename)
+
+    plot.savefig(full_path)
+    print(f"Plot saved to {full_path}")
+
+
+data_path = get_data_path()
+
+if not os.path.exists(data_path):
+    print(f"Error: Unable to locate data file at {data_path}")
+    print("Current working directory:", os.getcwd())
+    exit(1)
+
+df = pd.read_csv(data_path)
+print("Data loaded successfully!")
+
 df.head()
 
 # Check data structure
@@ -91,7 +126,7 @@ sns.histplot(df['Customer_Satisfaction'], bins=30, kde=True)
 plt.title('Distribution of Customer_Satisfaction')
 plt.xlabel('Customer_Satisfaction')
 plt.ylabel('Frequency')
-plt.savefig("../scripts/images/ecommerce_customer_satisfaction_distribution.png")
+save_plot(plt, "ecommerce_customer_satisfaction_distribution.png")
 plt.show()
 
 
@@ -279,7 +314,7 @@ plt.ylabel('True Positive Rate')
 plt.title('ROC Curve - XGBoost')
 plt.legend(loc='lower right')
 plt.grid(True)
-plt.savefig("../scripts/images/ecommerce_xgboost_roc_curve.png")
+save_plot(plt, "ecommerce_xgboost_roc_curve.png")
 plt.show()
 
 
@@ -296,5 +331,5 @@ plt.barh(feature_importance['feature'].head(15),
 plt.title('Top 15 Feature Importance - XGBoost')
 plt.xlabel('Importance Score')
 plt.tight_layout()
-plt.savefig("../scripts/images/ecommerce_xgboost_feature_importance.png")
+save_plot(plt, "ecommerce_xgboost_feature_importance.png")
 plt.show()
