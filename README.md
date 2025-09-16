@@ -1,4 +1,8 @@
 # Ecommerce Consumer Behavior Analysis Project
+[![CI tests](https://github.com/mingjie-wei/IDS706_Data-Engineering_Week2/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/mingjie-wei/IDS706_Data-Engineering_Week2/actions/workflows/tests.yml)
+[![Dev Container](https://img.shields.io/badge/Dev%20Container-Ready-2ea44f?logo=visualstudiocode)](.devcontainer/devcontainer.json)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
+
 
 ## Project Overview
 This project delivers an end-to-end analytics workflow on e-commerce consumer behavior, covering data ingestion, cleaning, exploratory analysis, RFM-based customer segmentation, feature engineering, and binary classification using Logistic Regression and XGBoost. Visualizations (distribution plots, ROC curves, feature importance) are used to explain results and actionable insights.
