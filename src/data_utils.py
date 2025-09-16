@@ -9,9 +9,6 @@ def load_csv(file_path):
     return df
 
 
-df = load_csv("data/Ecommerce_Consumer_Behavior_Analysis_Data.csv")
-
-
 def clean_currency_column(df, column_name):
     # Clean currency column by removing '$', ',', and converting to float
     if column_name not in df.columns:
