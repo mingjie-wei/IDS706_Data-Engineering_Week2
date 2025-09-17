@@ -11,88 +11,43 @@ This project delivers an end-to-end analytics workflow on e-commerce consumer be
 
 **Data Source:** [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data)
 
-## Data Analysis Steps
-
-### 1. Environment & Dependency Check
-Verify Python and core DS stack (pandas / matplotlib / seaborn / scikit-learn / xgboost).
-
-### 2. Data Loading
-Read from data/Ecommerce_Consumer_Behavior_Analysis_Data.csv; inspect schema and sample.
-
-### 3. Data Cleaning
-- Missing values: scan counts and percentages; fill categorical gaps (e.g., Engagement_with_Ads, Social_Media_Influence) with 'None'.
-
-- Type fixes: strip '$' and cast Purchase_Amount to float; parse Time_of_Purchase as datetime.
-
-### 4. Exploratory Analysis
-Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Satisfaction) and other univariate/bivariate checks.
-
-### 5. RFM Customer Segmentation
-- Compute Recency, Frequency, Monetary and 5-quantile R/F/M scores.
-
-- Define churn label is_churn = (Recency > 180).
-
-- Map RF combinations to human-readable segments (e.g., Hibernating, At-Risk, Cannot Lose Them, About to Sleep, Need Attention, Loyal Customers, Promising, New Customers, Potential Loyalists, Champions).
-
-- Merge segments back to the main table.
-
-### 6. Feature Engineering
-One-hot encode categorical features (with drop_first=True), standardize numerical features, and assemble the training matrix.
-
-### 7. Modeling & Evaluation
-- Logistic Regression as a baseline; accuracy and classification report.
-
-- XGBoost with core hyperparameters; report Accuracy and AUC; plot ROC and feature importance.
-
-### 8. Visualization
-Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
-
-## Model Conclusions & Important Variables
-Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
-
-### 1. Logistic Regression：
-- Accuracy: ~0.905 on the test set.
-
-- Most impactful variables:
-    - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
-
-    - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
-
-- Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
-
-### 2. XGBoost：
-- Accuracy: ~0.890
-
-- AUC: ~0.976
-
-- Classification report shows balanced precision/recall across classes.
-
 ## Project Structure
 ```bash
-IDS706_Data-Engineering_Week2/
-├─ .devcontainer/                  # Dev Container config (commit)
-│  └─ devcontainer.json
-├─ .github/                        # GitHub automations (commit)
-│  └─ dependabot.yml
-├─ .gitignore                      # Git ignore rules (commit)
-├─ Makefile                        # Handy install/test/clean targets (commit)
-├─ README.md                       # Project doc (commit)
-├─ requirements.txt                # Runtime dependencies (commit)
-├─ data/                           # Dataset (commit)
-│  └─ Ecommerce_Consumer_Behavior_Analysis_Data.csv
-├─ kaggle/                         # Local-only
-│  └─ kaggle.json
-├─ notebooks/                      # Notebooks for exploration (commit)
-│  └─ ecommerce_behavior_analysis.ipynb
-└─ scripts/                        # Exported, runnable .py (commit)
-│  ├─ images/                      # Generated visualizations and images
-│  │  ├─ ecommerce_customer_satisfaction_distribution.png
-│  │  ├─ ecommerce_xgboost_feature_importance.png
-│  │  └─ ecommerce_xgboost_roc_curve.png
-│  └─ ecommerce_behavior_analysis_show.py
+.
+├── README.md                          # Project description
+├── requirements.txt                   # Unified dependencies
+├── Makefile                           # install / pytest / coverage
+├── Dockerfile                         # Reproducible runtime environment
+├── .dockerignore                      # Exclude .git, __pycache__, etc.
+├── .gitignore                         # Git ignore rules
+├── pytest.ini                         # pytest config (e.g., pythonpath=., addopts)
+├── .github/
+│   └── workflows/
+│       └── tests.yml                  # CI: run tests on push/PR (with coverage)
+│   └── dependabot.yml
+├── .devcontainer/
+│   └── devcontainer.json              # Dev Container
+├── src/                               # Application/reusable code
+│   ├── data_utils.py                  # load_csv / clean_currency_column / filter_data / group_data
+│   ├── features.py                    # add_high_satisfaction_label / select_and_encode_features
+│   └── model.py                       # train_logreg_classifier (accuracy/roc_auc etc.)
+├── tests/                             # Test code
+│   ├── conftest.py                    # pytest fixtures (e.g., tiny_df)
+│   ├── test_data_utils.py             # loading/cleaning/filtering/grouping (edge cases like missing-column KeyError)
+│   ├── test_features.py               # features & labels (one-hot, missing handling, threshold logic)
+│   ├── test_model.py                  # end-to-end training & error paths (single class/empty data)
+│   └── test_system_pipeline.py        # system test on real CSV: cleaning → features → training → metrics
+├── data/
+│   └── Ecommerce_Consumer_Behavior_Analysis_Data.csv  # Real dataset (used in system tests)
+├── docs/
+│   └── images/                        # Screenshots referenced in README
+├── scripts/                           # scripts
+│   └── ecommerce_behavior_analysis_show.py
+└── notebooks/                         # Jupyter notebooks
+    └── ecommerce_behavior_analysis.ipynb
 ```
 
-## Development Container Setup
+## Dev Container Setup
 
 ### Prerequisites
 - Docker Desktop installed and running
@@ -154,7 +109,65 @@ After successful build, confirm:
 
 - Configuration choices: Selected workspace-level configuration for better collaboration
 
-## Kaggle API Integration
+## Docker Setup
+
+### 1. Docker Build Process
+The Dockerfile defines the steps to build the project's Docker image. It installs dependencies from requirements.txt and copies the entire project into the container.
+```
+docker build -t ecommerce-analysis .
+```
+- **-t ecommerce-analysis**: Tags the image with a name for easy reference.
+- **.**: Specifies the current directory as the build context.
+- To force a fresh build and ignore cached layers, use the --no-cache flag: `docker build -t ecommerce-analysis . --no-cache`
+
+![Docker Built](docs/images/docker_build.png)
+
+### 2. Running the Container
+```
+docker run -it --rm ecommerce-analysis
+```
+- **-it**: Runs the container interactively, linking  terminal to the container's output.
+- **--rm**: Automatically removes the container upon exit, keeping system clean.
+
+![Docker Run](docs/images/docker_run.png)
+
+### 3. Key Troubleshooting Scenarios
+
+#### File Not Found Errors
+This is a common issue where the container fails to locate data or script files, often due to a mismatch between the local file system and the container's.
+- **Problem**: A file exists locally but the container reports it's missing (e.g., `Error: Unable to locate data file at /app/data/...`).
+- **Reason**: The file was not copied into the image during the build process, most likely due to a rule in the .dockerignore file.
+- **Solution**:
+    - Inspect the `.dockerignore` file and ensure it does not contain a rule that accidentally excludes the `data` folder or its contents.
+    - If the problem persists, use an explicit `COPY` command in the `Dockerfile` to guarantee the files are included.
+
+#### Dynamic Path Handling for Development
+To ensure Python scripts work correctly in both the local development container and the final Docker image, avoid hard-coding paths.
+- **Problem**: A relative path like `../data/file.csv` works locally but fails inside a container where the working directory might be different.
+- **Solution**: Use dynamic path logic within Python code to check for different possible locations (e.g., local and container paths) or use an environment variable to determine the correct path.
+```
+import os
+# Example for handling data file path
+data_path = os.getenv('IS_DOCKER_CONTAINER') == 'true' and '/app/data/file.csv' or 'data/file.csv'
+# Ensure this variable is set in the Dockerfile: ENV IS_DOCKER_CONTAINER=true
+```
+This is also applicable to saving plots or other generated output.
+
+#### Debugging a Running Container
+To directly inspect the container's file system or environment, we can start an interactive shell.
+- Access the Container's Shell:
+```
+docker run -it --rm ecommerce-analysis sh
+```
+- Inside the shell, use commands to verify files:
+```
+$ls -l /app$ ls -l /app/data
+```
+This will confirm if the files were successfully copied into the image, allowing us to quickly diagnose build-related issues.
+
+## Data & Kaggle API Integration
+- **Dataset**: `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv` (already included for system tests, for convenience).
+- I also tried the API method, as shown below.
 
 ### Prerequisites
 - Kaggle account
@@ -232,7 +245,105 @@ kaggle datasets list -s "ecommerce" --max-size 3
 ls -la ~/.kaggle/
 ```
 
-## Jupyter Notebook Environment Setup
+## Data Analysis Steps
+
+### 1. Environment & Dependency Check
+Verify Python and core DS stack (pandas / matplotlib / seaborn / scikit-learn / xgboost).
+
+### 2. Data Loading
+Read from data/Ecommerce_Consumer_Behavior_Analysis_Data.csv; inspect schema and sample.
+
+### 3. Data Cleaning
+- Missing values: scan counts and percentages; fill categorical gaps (e.g., Engagement_with_Ads, Social_Media_Influence) with 'None'.
+
+- Type fixes: strip '$' and cast Purchase_Amount to float; parse Time_of_Purchase as datetime.
+
+### 4. Exploratory Analysis
+Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Satisfaction) and other univariate/bivariate checks.
+
+### 5. RFM Customer Segmentation
+- Compute Recency, Frequency, Monetary and 5-quantile R/F/M scores.
+
+- Define churn label is_churn = (Recency > 180).
+
+- Map RF combinations to human-readable segments (e.g., Hibernating, At-Risk, Cannot Lose Them, About to Sleep, Need Attention, Loyal Customers, Promising, New Customers, Potential Loyalists, Champions).
+
+- Merge segments back to the main table.
+
+### 6. Feature Engineering
+One-hot encode categorical features (with drop_first=True), standardize numerical features, and assemble the training matrix.
+
+### 7. Modeling & Evaluation
+- Logistic Regression as a baseline; accuracy and classification report.
+
+- XGBoost with core hyperparameters; report Accuracy and AUC; plot ROC and feature importance.
+
+### 8. Visualization
+Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
+
+## Model Conclusions & Important Variables
+Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
+
+### 1. Logistic Regression：
+- Accuracy: ~0.905 on the test set.
+
+- Most impactful variables:
+    - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
+
+    - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
+
+- Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
+
+### 2. XGBoost：
+- Accuracy: ~0.890
+
+- AUC: ~0.976
+
+- Classification report shows balanced precision/recall across classes.
+
+## Test Steps
+
+### Test Structure
+- `src/` = **product code**
+
+    Reusable implementation used by scripts/notebooks and imported as `from src....` Inputs/outputs are explicit; on errors the code raises exceptions (e.g., KeyError for missing columns, ValueError for invalid targets).
+
+- `tests/` = **test code only**
+
+    Assertions and test logic live here (no implementations). Pytest discovery conventions: files `tests/test_*.py`, functions `test_*.` Import the code under test via `from src...`.
+
+- **Unit test coverage**
+
+    **Loading** (load_csv), **currency clean-up** (clean_currency_column), **filtering** (filter_data), **grouping/aggregation** (group_data), **feature prep** (select_and_encode_features), and **model training** (train_logreg_classifier)—including **edge cases** like missing columns → KeyError, single-class labels → ValueError, and empty inputs.
+
+- **System test**
+
+    Runs on the real CSV (data/Ecommerce_Consumer_Behavior_Analysis_Data.csv) to validate the **full pipeline**: clean → features → train → metrics, asserting row alignment and metrics ∈ [0,1].
+
+- **Fixtures**
+
+    `tests/conftest.py` provides a small, deterministic `tiny_df` covering typical categories and edge values, ensuring isolated and repeatable tests.
+
+- **Error handling is assertable**
+
+    Code raises clear exceptions; tests use `with pytest.raises(...)` instead of relying on prints/logs—better for CI automation.
+
+- **Run tests**
+```
+pytest -q
+pytest --cov=src --cov-report=term-missing
+```
+![Tests Passed](docs/images/tests_pass.png)
+
+- **CI integration**
+
+    `.github/workflows/tests.yml` runs pytest on every push/PR, acting as a quality gate for `main`.
+
+- **Evolving tests**
+
+    When changing `src/`, add/update unit tests; when changing cross-module behavior, keep the system test in sync. Prefer parameterized tests for variations; keep tests independent and reproducible.
+
+## Option: Jupyter Notebook Environment Setup
 
 ### Environment Configuration
 
