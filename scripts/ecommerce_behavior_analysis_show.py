@@ -47,7 +47,7 @@ def save_plot(plot, filename):
     if os.getenv("IS_DOCKER_CONTAINER") == "true":
         output_dir = "/app/scripts/images"
     else:
-        output_dir = "scripts/images"
+        output_dir = "images"
 
     os.makedirs(output_dir, exist_ok=True)
 
