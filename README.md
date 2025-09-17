@@ -346,6 +346,7 @@ pytest --cov=src --cov-report=term-missing
 
 ### Test Result
 ![Tests Passed](docs/images/tests_pass.png)
+![Tests Passed Detail](docs/images/tests_pass_detail.png)
 
 ## Option: Jupyter Notebook Environment Setup
 
