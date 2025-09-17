@@ -14,33 +14,33 @@ This project delivers an end-to-end analytics workflow on e-commerce consumer be
 ## Project Structure
 ```bash
 .
-├── README.md                          # Project description
-├── requirements.txt                   # Unified dependencies
-├── Makefile                           # install / pytest / coverage
-├── Dockerfile                         # Reproducible runtime environment
-├── .dockerignore                      # Exclude .git, __pycache__, etc.
-├── .gitignore                         # Git ignore rules
+├── README.md
+├── requirements.txt
+├── Makefile
+├── Dockerfile
+├── .dockerignore
+├── .gitignore
 ├── pytest.ini                         # pytest config (e.g., pythonpath=., addopts)
 ├── .github/
 │   └── workflows/
 │       └── tests.yml                  # CI: run tests on push/PR (with coverage)
 │   └── dependabot.yml
 ├── .devcontainer/
-│   └── devcontainer.json              # Dev Container
+│   └── devcontainer.json
 ├── src/                               # Application/reusable code
-│   ├── data_utils.py                  # load_csv / clean_currency_column / filter_data / group_data
-│   ├── features.py                    # add_high_satisfaction_label / select_and_encode_features
-│   └── model.py                       # train_logreg_classifier (accuracy/roc_auc etc.)
+│   ├── data_utils.py
+│   ├── features.py
+│   └── model.py
 ├── tests/                             # Test code
-│   ├── conftest.py                    # pytest fixtures (e.g., tiny_df)
-│   ├── test_data_utils.py             # loading/cleaning/filtering/grouping (edge cases like missing-column KeyError)
-│   ├── test_features.py               # features & labels (one-hot, missing handling, threshold logic)
-│   ├── test_model.py                  # end-to-end training & error paths (single class/empty data)
-│   └── test_system_pipeline.py        # system test on real CSV: cleaning → features → training → metrics
+│   ├── conftest.py
+│   ├── test_data_utils.py
+│   ├── test_features.py
+│   ├── test_model.py
+│   └── test_system_pipeline.py
 ├── data/
 │   └── Ecommerce_Consumer_Behavior_Analysis_Data.csv  # Real dataset (used in system tests)
 ├── docs/
-│   └── images/                        # Screenshots referenced in README
+│   └── images/
 ├── scripts/                           # scripts
 │   └── ecommerce_behavior_analysis_show.py
 └── notebooks/                         # Jupyter notebooks
@@ -134,7 +134,7 @@ docker run -it --rm ecommerce-analysis
 ### 3. Key Troubleshooting Scenarios
 
 #### File Not Found Errors
-This is a common issue where the container fails to locate data or script files, often due to a mismatch between the local file system and the container's.
+This is an issue I encountered where the container fails to locate data due to a mismatch between the local file system and the container's.
 - **Problem**: A file exists locally but the container reports it's missing (e.g., `Error: Unable to locate data file at /app/data/...`).
 - **Reason**: The file was not copied into the image during the build process, most likely due to a rule in the .dockerignore file.
 - **Solution**:
@@ -281,6 +281,8 @@ One-hot encode categorical features (with drop_first=True), standardize numerica
 ### 8. Visualization
 Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
 
+![Visualization](scripts/images/ecommerce_xgboost_roc_curve.png)
+
 ## Model Conclusions & Important Variables
 Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
 
@@ -333,7 +335,6 @@ Based on the current notebook runs (train/test split ≈ 800/200, post-encoding 
 pytest -q
 pytest --cov=src --cov-report=term-missing
 ```
-![Tests Passed](docs/images/tests_pass.png)
 
 - **CI integration**
 
@@ -342,6 +343,9 @@ pytest --cov=src --cov-report=term-missing
 - **Evolving tests**
 
     When changing `src/`, add/update unit tests; when changing cross-module behavior, keep the system test in sync. Prefer parameterized tests for variations; keep tests independent and reproducible.
+
+### Test Result
+![Tests Passed](docs/images/tests_pass.png)
 
 ## Option: Jupyter Notebook Environment Setup
 
