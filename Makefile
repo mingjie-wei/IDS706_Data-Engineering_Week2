@@ -1,8 +1,19 @@
 # Makefile for Data Analysis Project
+.PHONY: install format lint test clean coverage pytest
+
+ARGS ?= .
 
 install:
 	python -m pip install --upgrade pip
 	python -m pip install -r requirements.txt
+
+# make format ARGS="abc.py" / make format ARGS="src tests"
+format:
+	python -m black $(ARGS)
+
+# make lint ARGS="abc.py"
+lint:
+	python -m flake8 $(ARGS)
 
 test:
 	python - <<'PY'
