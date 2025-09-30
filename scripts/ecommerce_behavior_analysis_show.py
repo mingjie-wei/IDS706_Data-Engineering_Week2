@@ -98,9 +98,30 @@ print(
 
 
 # Handling Missing Values
-df["Engagement_with_Ads"] = df["Engagement_with_Ads"].fillna("None")
-df["Social_Media_Influence"] = df["Social_Media_Influence"].fillna("None")
-print(df.isnull().sum())
+def handle_missing_values(df, fill_strategy):
+
+    null_counts_before = df.isnull().sum()
+
+    df_filled = df.copy()
+    for col, fill_value in fill_strategy.items():
+        if col in df_filled.columns:
+            null_count = df_filled[col].isnull().sum()
+            df_filled[col] = df_filled[col].fillna(fill_value)
+            print(f"Column '{col}': filled {null_count} missing values")
+
+    null_counts_after = df_filled.isnull().sum()
+    print("\nMissing values processing summary:")
+    print(f"Total missing values before processing: {null_counts_before.sum()}")
+    print(f"Total missing values after processing: {null_counts_after.sum()}")
+
+    return df_filled
+
+
+fill_strategy = {
+    "Engagement_with_Ads": "None",
+    "Social_Media_Influence": "None"
+}
+df = handle_missing_values(df, fill_strategy)
 
 
 # Correct Data Types
@@ -215,10 +236,10 @@ print(rfm_df.head())
 
 # ======= Feature Engineering =======
 # Merge the RFM clustering results back into the main table
-customer_segments = rfm_df.reset_index()[
+customer_rfm_segments = rfm_df.reset_index()[
     ["Customer_ID", "Segment", "is_churn", "Recency", "Frequency", "Monetary"]
 ]
-df = pd.merge(df, customer_segments, on="Customer_ID", how="left")
+df = pd.merge(df, customer_rfm_segments, on="Customer_ID", how="left")
 
 # Data preparation
 y = df["is_churn"]
