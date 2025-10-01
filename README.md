@@ -4,14 +4,61 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
 
 
-## Project Overview
 This project delivers an end-to-end analytics workflow on e-commerce consumer behavior, covering data ingestion, cleaning, exploratory analysis, RFM-based customer segmentation, feature engineering, and binary classification using Logistic Regression and XGBoost. Visualizations (distribution plots, ROC curves, feature importance) are used to explain results and actionable insights.
 
 **Project Goal:** Predict the likelihood of customer churn, where churn is defined as having no purchase activity within the past 180 days.
 
 **Data Source:** [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data)
 
-## Project Structure
+
+# Project Overview
+### Data Pipeline
+```
+Raw Data (1,000 records × 28 features)
+    ↓
+Data Cleaning (Handle 503 missing values)
+    ↓
+Feature Engineering (79 features after encoding)
+    ↓
+RFM Segmentation (10 customer segments)
+    ↓
+Model Training (80/20 split)
+    ↓
+Predictions (89-90% accuracy)
+```
+
+### Key Findings
+- High Churn Risk Indicators (Positive Coefficients)
+
+    - Segment_Hibernating (+3.71): Dormant customers with highest churn likelihood
+    - Segment_At-Risk (+3.55): Previously active customers showing decline
+    - Segment_Cannot Lose Them (+2.97): High-value customers needing immediate attention
+
+- Retention Indicators (Negative Coefficients)
+
+    - Segment_Potential Loyalists (-3.69): Customers showing loyalty potential
+    - Segment_Champions (-3.18): Best customers with lowest churn risk
+    - Segment_New Customers (-2.57): Recently acquired customers
+    - Segment_Promising (-2.46): Customers with growth potential
+    - Segment_Loyal Customers (-1.32): Regular, satisfied customers
+
+- Interesting Insights
+
+    - Software & Apps Category (-0.59): Products with better retention
+
+### Business Recommendations
+- Immediate Actions (0-30 days)
+
+    - At-Risk Customers: Deploy personalized email campaign with 25% discount
+    - Champions: Launch VIP loyalty tier with exclusive benefits
+
+- Strategic Initiatives (30-90 days)
+
+    - Hibernating Segment: Test aggressive discounting (40-50%); implement win-back campaign with survey
+    - Potential Loyalists: Personalized product recommendations; automated onboarding sequence
+
+
+# Project Structure
 ```bash
 .
 ├── README.md
@@ -21,6 +68,8 @@ This project delivers an end-to-end analytics workflow on e-commerce consumer be
 ├── .dockerignore
 ├── .gitignore
 ├── pytest.ini                         # pytest config (e.g., pythonpath=., addopts)
+├── .flake8                            # Flake8 rules (ignores, max line length, excludes)
+├── pyproject.toml                     # Tooling config (e.g., Black line length/target py)
 ├── .github/
 │   └── workflows/
 │       └── tests.yml                  # CI: run tests on push/PR (with coverage)
@@ -47,6 +96,7 @@ This project delivers an end-to-end analytics workflow on e-commerce consumer be
     └── ecommerce_behavior_analysis.ipynb
 ```
 
+# Setup Instructions
 ## Dev Container Setup
 
 ### Prerequisites
@@ -165,15 +215,20 @@ $ls -l /app$ ls -l /app/data
 ```
 This will confirm if the files were successfully copied into the image, allowing us to quickly diagnose build-related issues.
 
-## Data & Kaggle API Integration
-- **Dataset**: `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv` (already included for system tests, for convenience).
-- I also tried the API method, as shown below.
 
-### Prerequisites
+## Data Access (Two Options)
+I used two ways to obtain the dataset and kept both for reproducibility:
+
+### Option A: Local CSV (default & used in system tests)
+- If the CSV is already included in the repo: the code reads `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv` by default, no setup needed.
+- If you prefer to prepare it yourself: download from [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data) and save as `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv`.
+
+
+### Option B: API Download (Kaggle)
+
+#### 0. Prerequisites
 - Kaggle account
 - Kaggle API token
-
-### Setup Steps
 
 #### 1. Obtain Kaggle API Token
 - Login to your Kaggle account
@@ -204,7 +259,7 @@ chmod 600 ~/.kaggle/kaggle.json  # Critical security step
 pip install kaggle
 ```
 
-### Download Dataset
+#### 4. Download Dataset
 ```bash
 # Download the ecommerce dataset
 kaggle datasets download -d salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data -p ./data
@@ -216,7 +271,7 @@ unzip ./data/ecommerce-consumer-behavior-analysis-data.zip -d ./data
 python -m zipfile -e ./data/ecommerce-consumer-behavior-analysis-data.zip ./data
 ```
 
-### .gitignore Protection
+#### 5. .gitignore Protection
 Ensure your .gitignore contains:
 
 ```bash
@@ -233,7 +288,7 @@ data/*/
 .DS_Store
 ```
 
-### Verification Commands
+#### 6. Verification Commands
 ```bash
 # Verify API configuration
 kaggle --version
@@ -245,110 +300,7 @@ kaggle datasets list -s "ecommerce" --max-size 3
 ls -la ~/.kaggle/
 ```
 
-## Data Analysis Steps
-
-### 1. Environment & Dependency Check
-Verify Python and core DS stack (pandas / matplotlib / seaborn / scikit-learn / xgboost).
-
-### 2. Data Loading
-Read from data/Ecommerce_Consumer_Behavior_Analysis_Data.csv; inspect schema and sample.
-
-### 3. Data Cleaning
-- Missing values: scan counts and percentages; fill categorical gaps (e.g., Engagement_with_Ads, Social_Media_Influence) with 'None'.
-
-- Type fixes: strip '$' and cast Purchase_Amount to float; parse Time_of_Purchase as datetime.
-
-### 4. Exploratory Analysis
-Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Satisfaction) and other univariate/bivariate checks.
-
-### 5. RFM Customer Segmentation
-- Compute Recency, Frequency, Monetary and 5-quantile R/F/M scores.
-
-- Define churn label is_churn = (Recency > 180).
-
-- Map RF combinations to human-readable segments (e.g., Hibernating, At-Risk, Cannot Lose Them, About to Sleep, Need Attention, Loyal Customers, Promising, New Customers, Potential Loyalists, Champions).
-
-- Merge segments back to the main table.
-
-### 6. Feature Engineering
-One-hot encode categorical features (with drop_first=True), standardize numerical features, and assemble the training matrix.
-
-### 7. Modeling & Evaluation
-- Logistic Regression as a baseline; accuracy and classification report.
-
-- XGBoost with core hyperparameters; report Accuracy and AUC; plot ROC and feature importance.
-
-### 8. Visualization
-Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
-
-![Visualization](scripts/images/ecommerce_xgboost_roc_curve.png)
-
-## Model Conclusions & Important Variables
-Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
-
-### 1. Logistic Regression：
-- Accuracy: ~0.905 on the test set.
-
-- Most impactful variables:
-    - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
-
-    - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
-
-- Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
-
-### 2. XGBoost：
-- Accuracy: ~0.890
-
-- AUC: ~0.976
-
-- Classification report shows balanced precision/recall across classes.
-
-## Test Steps
-
-### Test Structure
-- `src/` = **product code**
-
-    Reusable implementation used by scripts/notebooks and imported as `from src....` Inputs/outputs are explicit; on errors the code raises exceptions (e.g., KeyError for missing columns, ValueError for invalid targets).
-
-- `tests/` = **test code only**
-
-    Assertions and test logic live here (no implementations). Pytest discovery conventions: files `tests/test_*.py`, functions `test_*.` Import the code under test via `from src...`.
-
-- **Unit test coverage**
-
-    **Loading** (load_csv), **currency clean-up** (clean_currency_column), **filtering** (filter_data), **grouping/aggregation** (group_data), **feature prep** (select_and_encode_features), and **model training** (train_logreg_classifier)—including **edge cases** like missing columns → KeyError, single-class labels → ValueError, and empty inputs.
-
-- **System test**
-
-    Runs on the real CSV (data/Ecommerce_Consumer_Behavior_Analysis_Data.csv) to validate the **full pipeline**: clean → features → train → metrics, asserting row alignment and metrics ∈ [0,1].
-
-- **Fixtures**
-
-    `tests/conftest.py` provides a small, deterministic `tiny_df` covering typical categories and edge values, ensuring isolated and repeatable tests.
-
-- **Error handling is assertable**
-
-    Code raises clear exceptions; tests use `with pytest.raises(...)` instead of relying on prints/logs—better for CI automation.
-
-- **Run tests**
-```
-pytest -q
-pytest --cov=src --cov-report=term-missing
-```
-
-- **CI integration**
-
-    `.github/workflows/tests.yml` runs pytest on every push/PR, acting as a quality gate for `main`.
-
-- **Evolving tests**
-
-    When changing `src/`, add/update unit tests; when changing cross-module behavior, keep the system test in sync. Prefer parameterized tests for variations; keep tests independent and reproducible.
-
-### Test Result
-![Tests Passed](docs/images/tests_pass.png)
-![Tests Passed Detail](docs/images/tests_pass_detail.png)
-
-## Option: Jupyter Notebook Environment Setup
+## Optional: Jupyter Notebook Environment Setup
 
 ### Environment Configuration
 
@@ -435,4 +387,111 @@ try:
 except ImportError as e:
     print("Package import failed:", e)
 ```
+
+
+
+
+# Data Analysis Steps
+
+### 1. Environment & Dependency Check
+Verify Python and core DS stack (pandas / matplotlib / seaborn / scikit-learn / xgboost).
+
+### 2. Data Loading
+Read from data/Ecommerce_Consumer_Behavior_Analysis_Data.csv; inspect schema and sample.
+
+### 3. Data Cleaning
+- Missing values: scan counts and percentages; fill categorical gaps (e.g., Engagement_with_Ads, Social_Media_Influence) with 'None'.
+
+- Type fixes: strip '$' and cast Purchase_Amount to float; parse Time_of_Purchase as datetime.
+
+### 4. Exploratory Analysis
+Category distributions (e.g., Purchase_Category), histograms (e.g., Customer_Satisfaction) and other univariate/bivariate checks.
+
+### 5. RFM Customer Segmentation
+- Compute Recency, Frequency, Monetary and 5-quantile R/F/M scores.
+
+- Define churn label is_churn = (Recency > 180).
+
+- Map RF combinations to human-readable segments (e.g., Hibernating, At-Risk, Cannot Lose Them, About to Sleep, Need Attention, Loyal Customers, Promising, New Customers, Potential Loyalists, Champions).
+
+- Merge segments back to the main table.
+
+### 6. Feature Engineering
+One-hot encode categorical features (with drop_first=True), standardize numerical features, and assemble the training matrix.
+
+### 7. Modeling & Evaluation
+- Logistic Regression as a baseline; accuracy and classification report.
+
+- XGBoost with core hyperparameters; report Accuracy and AUC; plot ROC and feature importance.
+
+### 8. Visualization
+Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
+
+![Visualization](scripts/images/ecommerce_xgboost_roc_curve.png)
+
+### 9. Model Conclusions & Important Variables
+Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
+
+#### Logistic Regression：
+- Accuracy: ~0.905 on the test set.
+
+- Most impactful variables:
+    - Positive (↑ churn odds): Segment_Hibernating (+3.71), Segment_At-Risk (+3.55), Segment_Cannot Lose Them (+2.97).
+
+    - Negative (↓ churn odds): Segment_Potential Loyalists (−3.69), Segment_Champions (−3.18), Segment_New Customers (−2.57), Segment_Promising (−2.46), Segment_Loyal Customers (−1.32), Gender_Bigender (−0.59), Purchase_Category_Software & Apps (−0.59).
+
+- Interpretation: RFM-derived segments strongly drive churn likelihood as expected.
+
+#### XGBoost：
+- Accuracy: ~0.890
+
+- AUC: ~0.976
+
+- Classification report shows balanced precision/recall across classes.
+
+# Test Steps
+
+### Test Structure
+- `src/` = **product code**
+
+    Reusable implementation used by scripts/notebooks and imported as `from src....` Inputs/outputs are explicit; on errors the code raises exceptions (e.g., KeyError for missing columns, ValueError for invalid targets).
+
+- `tests/` = **test code only**
+
+    Assertions and test logic live here (no implementations). Pytest discovery conventions: files `tests/test_*.py`, functions `test_*.` Import the code under test via `from src...`.
+
+- **Unit test coverage**
+
+    **Loading** (load_csv), **currency clean-up** (clean_currency_column), **filtering** (filter_data), **grouping/aggregation** (group_data), **feature prep** (select_and_encode_features), and **model training** (train_logreg_classifier)—including **edge cases** like missing columns → KeyError, single-class labels → ValueError, and empty inputs.
+
+- **System test**
+
+    Runs on the real CSV (data/Ecommerce_Consumer_Behavior_Analysis_Data.csv) to validate the **full pipeline**: clean → features → train → metrics, asserting row alignment and metrics ∈ [0,1].
+
+- **Fixtures**
+
+    `tests/conftest.py` provides a small, deterministic `tiny_df` covering typical categories and edge values, ensuring isolated and repeatable tests.
+
+- **Error handling is assertable**
+
+    Code raises clear exceptions; tests use `with pytest.raises(...)` instead of relying on prints/logs—better for CI automation.
+
+- **Run tests**
+```
+pytest -q
+pytest --cov=src --cov-report=term-missing
+```
+
+- **CI integration**
+
+    `.github/workflows/tests.yml` runs pytest on every push/PR, acting as a quality gate for `main`.
+    ![CI](docs/images/CI.png)
+
+- **Evolving tests**
+
+    When changing `src/`, add/update unit tests; when changing cross-module behavior, keep the system test in sync. Prefer parameterized tests for variations; keep tests independent and reproducible.
+
+### Test Result
+![Tests Passed](docs/images/tests_pass.png)
+![Tests Passed Detail](docs/images/tests_pass_detail.png)
 
