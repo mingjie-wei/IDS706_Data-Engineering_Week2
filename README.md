@@ -4,11 +4,13 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
 
 
+
 This project delivers an end-to-end analytics workflow on e-commerce consumer behavior, covering data ingestion, cleaning, exploratory analysis, RFM-based customer segmentation, feature engineering, and binary classification using Logistic Regression and XGBoost. Visualizations (distribution plots, ROC curves, feature importance) are used to explain results and actionable insights.
 
 **Project Goal:** Predict the likelihood of customer churn, where churn is defined as having no purchase activity within the past 180 days.
 
 **Data Source:** [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data)
+
 
 
 # Project Overview
@@ -58,6 +60,7 @@ Predictions (89-90% accuracy)
     - Potential Loyalists: Personalized product recommendations; automated onboarding sequence
 
 
+
 # Project Structure
 ```bash
 .
@@ -95,6 +98,7 @@ Predictions (89-90% accuracy)
 └── notebooks/                         # Jupyter notebooks
     └── ecommerce_behavior_analysis.ipynb
 ```
+
 
 # Setup Instructions
 ## Dev Container Setup
@@ -221,14 +225,10 @@ I used two ways to obtain the dataset and kept both for reproducibility:
 
 ### Option A: Local CSV (default & used in system tests)
 - If the CSV is already included in the repo: the code reads `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv` by default, no setup needed.
-- If you prefer to prepare it yourself: download from [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data) and save as `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv`.
+- If you prefer to prepare it yourself: download from [Kaggle – Ecommerce Consumer Behavior Analysis Dataset](https://www.kaggle.com/datasets/salahuddinahmedshuvo/ecommerce-consumer-behavior-analysis-data/data) and save as `data/Ecommerce_Consumer_Behavior_Analysis_Data.csv`
 
 
 ### Option B: API Download (Kaggle)
-
-#### 0. Prerequisites
-- Kaggle account
-- Kaggle API token
 
 #### 1. Obtain Kaggle API Token
 - Login to your Kaggle account
@@ -390,7 +390,6 @@ except ImportError as e:
 
 
 
-
 # Data Analysis Steps
 
 ### 1. Environment & Dependency Check
@@ -449,6 +448,8 @@ Based on the current notebook runs (train/test split ≈ 800/200, post-encoding 
 
 - Classification report shows balanced precision/recall across classes.
 
+
+
 # Test Steps
 
 ### Test Structure
@@ -495,3 +496,61 @@ pytest --cov=src --cov-report=term-missing
 ![Tests Passed](docs/images/tests_pass.png)
 ![Tests Passed Detail](docs/images/tests_pass_detail.png)
 
+
+
+# Code Refactoring
+The refactoring focused on reducing duplication, clarifying intent, and making the pipeline easier to test and evolve. I successfully:
+
+- Extracted ad-hoc missing-value fills into a single, parameterized function (handle_missing_values) that prints before/after summaries; improving reuse, observability, and unit-testability.
+
+- Renamed ambiguous objects to domain-specific, descriptive names (e.g., customer_segments → customer_rfm_segments), which clarifies data lineage and prevents merge-source confusion.
+
+- Standardized merge steps with explicit left joins and clearly labeled sources, reducing the risk of silent data errors.
+
+- Cleaned up structure and removed repeated inline logic, leading to a more modular layout in src/ and simpler scripts.
+
+### Extracted missing-value handling into a reusable function
+- Before (inline & duplicated):
+```
+df["Engagement_with_Ads"] = df["Engagement_with_Ads"].fillna("None")
+df["Social_Media_Influence"] = df["Social_Media_Influence"].fillna("None")
+print(df.isnull().sum())
+```
+
+- After (single, testable entry point):
+```
+def handle_missing_values(df, fill_strategy):
+    null_counts_before = df.isnull().sum()
+    df_filled = df.copy()
+    for col, fill_value in fill_strategy.items():
+        if col in df_filled.columns:
+            null_count = df_filled[col].isnull().sum()
+            df_filled[col] = df_filled[col].fillna(fill_value)
+            print(f"Column '{col}': filled {null_count} missing values")
+    null_counts_after = df_filled.isnull().sum()
+    print("\nMissing values processing summary:")
+    print(f"Total missing values before processing: {null_counts_before.sum()}")
+    print(f"Total missing values after processing: {null_counts_after.sum()}")
+    return df_filled
+
+fill_strategy = {
+    "Engagement_with_Ads": "None",
+    "Social_Media_Influence": "None",
+}
+df = handle_missing_values(df, fill_strategy)
+```
+![code_refactoring_method](docs/images/code_refactoring_method.png)
+![code_refactoring_print](docs/images/code_refactoring_method_print.png)
+
+### Clearer, domain-specific naming
+- Before: customer_segments
+- After: customer_rfm_segments
+- Pros: Make the merge source explicit (RFM clustering output), avoid future confusion with other "segments".
+![code_refactoring_rename](docs/images/code_refactoring_rename.png)
+
+Overall, the codebase is now clearer and safer; easier to extend, debug, and maintain as new features and datasets are added.
+
+
+
+# Reference
+- [GitHub zhongyuan-duke](https://github.com/zhongyuan-duke/IDS-706-week-1-template)
