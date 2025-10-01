@@ -427,6 +427,7 @@ One-hot encode categorical features (with drop_first=True), standardize numerica
 Distribution plots, ROC curves, and feature-importance bar charts for interpretability.
 
 ![Visualization](scripts/images/ecommerce_xgboost_roc_curve.png)
+![Visualization](docs/images/feature_importance.png)
 
 ### 9. Model Conclusions & Important Variables
 Based on the current notebook runs (train/test split ≈ 800/200, post-encoding ~79 features, balanced classes ~51%/49%):
