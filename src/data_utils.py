@@ -3,8 +3,7 @@ import pandas as pd
 
 def load_csv(file_path):
     # Load CSV file into DataFrame
-    df = pd.read_csv(file_path, encoding='utf-8',
-                     na_values=['', 'NA', 'N/A', 'null'])
+    df = pd.read_csv(file_path, encoding="utf-8", na_values=["", "NA", "N/A", "null"])
 
     return df
 
@@ -23,8 +22,8 @@ def clean_currency_column(df, column_name):
     # 4. Remove leading/trailing whitespace
     # 5. Convert to float
     result[column_name] = result[column_name].astype(str)
-    result[column_name] = result[column_name].str.replace('$', '')
-    result[column_name] = result[column_name].str.replace(',', '')
+    result[column_name] = result[column_name].str.replace("$", "")
+    result[column_name] = result[column_name].str.replace(",", "")
     result[column_name] = result[column_name].str.strip()
     result[column_name] = result[column_name].astype(float)
 
@@ -54,10 +53,6 @@ def group_data(df, group_col, agg_col, agg="mean"):
     if df.empty:
         return pd.DataFrame(columns=[group_col, agg_col])
 
-    grouped = (
-        df.groupby(group_col, dropna=False)[agg_col]
-        .agg(agg)
-        .reset_index()
-    )
+    grouped = df.groupby(group_col, dropna=False)[agg_col].agg(agg).reset_index()
 
     return grouped

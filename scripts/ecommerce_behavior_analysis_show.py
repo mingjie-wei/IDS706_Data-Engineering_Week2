@@ -117,10 +117,7 @@ def handle_missing_values(df, fill_strategy):
     return df_filled
 
 
-fill_strategy = {
-    "Engagement_with_Ads": "None",
-    "Social_Media_Influence": "None"
-}
+fill_strategy = {"Engagement_with_Ads": "None", "Social_Media_Influence": "None"}
 df = handle_missing_values(df, fill_strategy)
 
 

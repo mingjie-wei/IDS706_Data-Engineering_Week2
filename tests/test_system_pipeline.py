@@ -1,4 +1,3 @@
-import pandas as pd
 from pathlib import Path
 from src.data_utils import load_csv, clean_currency_column, group_data
 from src.features import add_high_satisfaction_label, select_and_encode_features
@@ -16,11 +15,10 @@ def test_system_pipeline_runs_on_real_dataset():
     assert len(df) >= 100
 
     # Clean currency column
-    df = clean_currency_column(df, 'Purchase_Amount')
+    df = clean_currency_column(df, "Purchase_Amount")
 
     # Basic grouping sanity check
-    grp = group_data(df, 'Device_Used_for_Shopping',
-                     'Time_to_Decision', 'mean')
+    grp = group_data(df, "Device_Used_for_Shopping", "Time_to_Decision", "mean")
     assert not grp.empty
 
     # Features + target
@@ -32,5 +30,5 @@ def test_system_pipeline_runs_on_real_dataset():
 
     # Train model (smoke test for behavior)
     metrics = train_logreg_classifier(X, y, test_size=0.2, random_state=42)
-    assert 0.0 <= metrics['accuracy'] <= 1.0
-    assert 0.0 <= metrics['roc_auc'] <= 1.0
+    assert 0.0 <= metrics["accuracy"] <= 1.0
+    assert 0.0 <= metrics["roc_auc"] <= 1.0

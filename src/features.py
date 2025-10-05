@@ -2,15 +2,28 @@ import pandas as pd
 import numpy as np
 
 NUMERIC_CANDIDATES = [
-    "Age", "Frequency_of_Purchase", "Average_Order_Value", "Return_Rate",
-    "Customer_Satisfaction", "Time_to_Decision",
+    "Age",
+    "Frequency_of_Purchase",
+    "Average_Order_Value",
+    "Return_Rate",
+    "Customer_Satisfaction",
+    "Time_to_Decision",
 ]
 
 CATEGORICAL_CANDIDATES = [
-    "Gender", "Income_Level", "Marital_Status", "Education_Level",
-    "Occupation", "Purchase_Category", "Engagement_with_Ads",
-    "Device_Used_for_Shopping", "Payment_Method", "Time_of_Purchase",
-    "Discount_Used", "Customer_Loyalty_Program_Member", "Purchase_Intent",
+    "Gender",
+    "Income_Level",
+    "Marital_Status",
+    "Education_Level",
+    "Occupation",
+    "Purchase_Category",
+    "Engagement_with_Ads",
+    "Device_Used_for_Shopping",
+    "Payment_Method",
+    "Time_of_Purchase",
+    "Discount_Used",
+    "Customer_Loyalty_Program_Member",
+    "Purchase_Intent",
     "Shipping_Preference",
 ]
 
