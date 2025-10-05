@@ -24,7 +24,7 @@ jobs:
         run: make format ARGS="--check ."
 
       - name: Lint (flake8)
-        run: make lint ARGS="src tests scripts
+        run: make lint ARGS="src tests scripts"
 
       - name: Run tests
         run: pytest --cov=src --cov-report=term-missing
